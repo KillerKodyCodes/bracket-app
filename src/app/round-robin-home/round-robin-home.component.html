@@ -1,0 +1,12 @@
+<p>round-robin-home works!</p>
+
+<label for="newPlayerInput">Add a Player</label>
+<input id="newPlayerInput" type="text" [(ngModel)]="newPlayerName" />
+<button type="button" (click)="addPlayer()" [disabled]="addPlayerButtonDisabled()">Add</button>
+<br>
+<button type="button" (click)="clearPlayers()" [disabled]="isClearPlayersButtonDisabled()">Start Over</button>
+
+
+@for(player of playersArray; track $index){
+<p>{{$index + 1}} - {{player}} <button id="removePlayerButton" (click)="removePlayer($index)">Remove</button></p>
+}
