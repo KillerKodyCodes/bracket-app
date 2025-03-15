@@ -5,7 +5,9 @@
 <button type="button" (click)="addPlayer()" [disabled]="addPlayerButtonDisabled()">Add</button>
 <br>
 <button type="button" (click)="clearPlayers()" [disabled]="isClearPlayersButtonDisabled()">Start Over</button>
-
+<br>
+<button type="button" (click)="startRoundRobin()" [disabled]="isStartRoundRobinButtonDisabled()">Start Round
+  Robin</button>
 
 @for(player of playersArray; track $index){
 <p>{{$index + 1}} - {{player}} <button id="removePlayerButton" (click)="removePlayer($index)">Remove</button></p>
