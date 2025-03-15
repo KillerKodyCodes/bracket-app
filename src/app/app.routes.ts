@@ -6,7 +6,7 @@ export const routes: Routes = [
   {
     title: 'Round Robin',
     component: RoundRobinHomeComponent,
-    path: 'round-robin'
+    path: ''
   },
   {
     title: 'Round Robin',
