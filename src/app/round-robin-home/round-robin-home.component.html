@@ -1,7 +1,6 @@
-<p>round-robin-home works!</p>
-
+<p>Enter names to add to the total pull of players and hit Start Round Robin when you are ready. </p>
 <label for="newPlayerInput">Add a Player</label>
-<input id="newPlayerInput" type="text" [(ngModel)]="newPlayerName" />
+<input id="newPlayerInput" type="text" [(ngModel)]="newPlayerName" (keydown.enter)="addPlayer()" />
 <button type="button" (click)="addPlayer()" [disabled]="addPlayerButtonDisabled()">Add</button>
 <br>
 <button type="button" (click)="clearPlayers()" [disabled]="isClearPlayersButtonDisabled()">Start Over</button>
