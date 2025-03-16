@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { setThrowInvalidWriteToSignalError } from '@angular/core/primitives/signals';
 import { Router } from '@angular/router';
 export interface round {
   player1: string;

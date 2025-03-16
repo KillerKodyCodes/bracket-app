@@ -1,2 +1,27 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+
+button {
+  @apply bg-gray-200;
+  @apply rounded-md;
+  @apply px-2;
+}
+
+input {
+  @apply bg-gray-100;
+  @apply rounded-md;
+}
+
+table {
+  @apply border;
+  @apply rounded-md;
+}
+
+
+th {
+  @apply px-5;
+}
+
+td {
+  @apply px-5;
+}
