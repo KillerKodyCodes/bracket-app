@@ -112,8 +112,6 @@ export class RoundRobinRunComponent implements OnInit {
     }
   }
 
-
-
   private balanceBracket() {
     let balanced = false;
 
@@ -152,6 +150,5 @@ export class RoundRobinRunComponent implements OnInit {
       }
     }
   }
-
 
 }
