@@ -46,12 +46,28 @@ export class RoundRobinRunComponent implements OnInit {
             player2: player2,
             winner: 0
           }
-          this.roundsArray.push(roundData);
+
+          if (!this.isDuplicateRound(roundData)) {
+            this.roundsArray.push(roundData);
+          }
+
         }
       }
     }
 
+    console.log(this.roundsArray);
+
     this.balanceBracket();
+  }
+
+  private isDuplicateRound(roundToInsert: round) {
+    return this.roundsArray.some((round) => {
+      if ((round.player1 === roundToInsert.player1 && round.player2 === roundToInsert.player2) || (round.player1 === roundToInsert.player2 && round.player2 === roundToInsert.player1)) {
+        return true;
+      }
+      return false;
+    }
+    )
   }
 
   public setWinner(roundNumber: number, event: Event) {
