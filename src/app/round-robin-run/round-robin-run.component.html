@@ -1,60 +1,63 @@
-<div class="flex flex-row flex-wrap justify-center items-start gap-10">
-  <table>
-    <tr>
-      <th colspan="3">
-        Rounds
-      </th>
-    </tr>
-    <tr>
-      <th>Player 1</th>
-      <th>Player 2</th>
-      <th>Winner</th>
-    </tr>
-    @for (round of roundsArray; track $index) {
-    <tr>
-      <td>
-        {{round.player1}}
-      </td>
-      <td>
-        {{round.player2}}
-      </td>
-      <td>
-        <select (change)="setWinner($index,$event )">
-          <option value=0>Select...</option>
-          <option value=1>{{round.player1}}</option>
-          <option value=2>{{round.player2}}</option>
-        </select>
-      </td>
-    </tr>
-    }
-  </table>
+<div class="flex flex-row flex-wrap justify-center items-stretch gap-x-5 gap-y-10 mt-5">
+  <div class="border rounded-md">
+    <table class="table-auto">
+      <tr>
+        <th colspan="3">
+          Rounds
+        </th>
+      </tr>
+      <tr>
+        <th>Player 1</th>
+        <th>Player 2</th>
+        <th>Winner</th>
+      </tr>
+      @for (round of roundsArray; track $index) {
+      <tr>
+        <td>
+          {{round.player1}}
+        </td>
+        <td>
+          {{round.player2}}
+        </td>
+        <td>
+          <select (change)="setWinner($index,$event )">
+            <option value=0>Select...</option>
+            <option value=1>{{round.player1}}</option>
+            <option value=2>{{round.player2}}</option>
+          </select>
+        </td>
+      </tr>
+      }
+    </table>
+  </div>
 
-
-  <table>
-    <tr>
-      <th colspan="3">
-        Current Standings
-      </th>
-    </tr>
-    <tr>
-      <th>
-        Place
-      </th>
-      <th>
-        Player
-      </th>
-      <th>
-        Wins
-      </th>
-    </tr>
-    @for(player of standingsArray; track $index){
-    @if(player.points > 0){
-    <tr>
-      <td>{{$index + 1}}</td>
-      <td>{{player.player}}</td>
-      <td>{{player.points}}</td>
-    </tr>
-    }
-    }
-  </table>
+  <div class="border rounded-md">
+    <table class="table-auto">
+      <tr>
+        <th colspan="3">
+          Current Standings
+        </th>
+      </tr>
+      <tr>
+        <th>
+          Place
+        </th>
+        <th>
+          Player
+        </th>
+        <th>
+          Wins
+        </th>
+      </tr>
+      @for(player of standingsArray; track $index){
+      @if(player.points > 0){
+      <tr>
+        <td>{{$index + 1}}</td>
+        <td>{{player.player}}</td>
+        <td>{{player.points}}</td>
+      </tr>
+      }
+      }
+    </table>
+  </div>
 </div>

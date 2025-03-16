@@ -12,12 +12,6 @@ input {
   @apply rounded-md;
 }
 
-table {
-  @apply border;
-  @apply rounded-md;
-}
-
-
 th {
   @apply px-5;
 }
