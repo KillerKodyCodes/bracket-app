@@ -1,13 +1,23 @@
-<p>Enter names to add to the total pull of players and hit Start Round Robin when you are ready. </p>
-<label for="newPlayerInput">Add a Player</label>
-<input id="newPlayerInput" type="text" [(ngModel)]="newPlayerName" (keydown.enter)="addPlayer()" />
-<button type="button" (click)="addPlayer()" [disabled]="addPlayerButtonDisabled()">Add</button>
-<br>
-<button type="button" (click)="clearPlayers()" [disabled]="isClearPlayersButtonDisabled()">Start Over</button>
-<br>
-<button type="button" (click)="startRoundRobin()" [disabled]="isStartRoundRobinButtonDisabled()">Start Round
-  Robin</button>
+<div class="flex flex-col items-center gap-5">
 
-@for(player of playersArray; track $index){
-<p>{{$index + 1}} - {{player}} <button id="removePlayerButton" (click)="removePlayer($index)">Remove</button></p>
-}
+  <h1 class="text-2xl">Enter names to add to the total pull of players and hit Start Round Robin when you are ready.
+  </h1>
+  <div class="flex flex-row justify-around gap-4">
+    <label for="newPlayerInput">Add a Player</label>
+    <input id="newPlayerInput" type="text" class=" bg-gray-100 rounded-md" [(ngModel)]="newPlayerName"
+      (keydown.enter)="addPlayer()" />
+    <button type="button" class="bg-gray-50 rounded-md px-2 disabled:bg-gray-200 border-gray-300"
+      (click)="addPlayer()" [disabled]="addPlayerButtonDisabled()">Add</button>
+  </div>
+
+  <div class="flex flex-row justify-between gap-12">
+    <button type="button" (click)="clearPlayers()" [disabled]="isClearPlayersButtonDisabled()">Clear Players</button>
+    <button type="button" (click)="startRoundRobin()" [disabled]="isStartRoundRobinButtonDisabled()">Start Round
+      Robin</button>
+  </div>
+
+
+  @for(player of playersArray; track $index){
+  <p>{{$index + 1}} - {{player}} <button id="removePlayerButton" (click)="removePlayer($index)">Remove</button></p>
+  }
+</div>
