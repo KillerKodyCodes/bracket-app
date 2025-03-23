@@ -11,19 +11,19 @@
         <th>Player 2</th>
         <th>Winner</th>
       </tr>
-      @for (round of roundsArray; track $index) {
+      @for (match of matchesArray; track $index) {
       <tr>
         <td>
-          {{round.player1}}
+          {{match.player1}}
         </td>
         <td>
-          {{round.player2}}
+          {{match.player2}}
         </td>
         <td>
-          <select (change)="setWinner($index,$event )">
+          <select [(ngModel)]="match.winner" (change)="setWinner($index,$event )">
             <option value=0>Select...</option>
-            <option value=1>{{round.player1}}</option>
-            <option value=2>{{round.player2}}</option>
+            <option value=1>{{match.player1}}</option>
+            <option value=2>{{match.player2}}</option>
           </select>
         </td>
       </tr>

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-export interface round {
+import { FormsModule } from '@angular/forms';
+
+export interface match {
   player1: string;
   player2: string;
   winner: number;
@@ -13,61 +15,32 @@ export interface standingsObject {
 
 @Component({
   selector: 'app-round-robin-run',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './round-robin-run.component.html',
   styleUrl: './round-robin-run.component.css'
 })
 export class RoundRobinRunComponent implements OnInit {
 
   private playersArray: string[] = [];
-  public roundsArray: round[] = [];
+  public matchesArray: match[] = [];
   public standingsArray: standingsObject[] = [];
   constructor(private router: Router) { };
 
 
   ngOnInit(): void {
-    this.playersArray = history.state.playersArray || [];
+    this.matchesArray = JSON.parse(sessionStorage.getItem('matchesArray') || '[]');
+    this.playersArray = JSON.parse(sessionStorage.getItem('playersArray') || '[]');
+    this.standingsArray = JSON.parse(sessionStorage.getItem('standingsArray') || '[]');
 
-    if (this.playersArray.length < 2) {
+    if (this.matchesArray.length < 1 || this.playersArray.length < 2) {
       this.router.navigate(['/round-robin']);
     }
 
-    this.generateBracket();
-    this.initializeStandings();
-
-  }
-
-  generateBracket() {
-    for (const player1 of this.playersArray) {
-      for (const player2 of this.playersArray) {
-        if (player1 !== player2) {
-          const roundData: round = {
-            player1: player1,
-            player2: player2,
-            winner: 0
-          }
-
-          if (!this.isDuplicateRound(roundData)) {
-            this.roundsArray.push(roundData);
-          }
-
-        }
-      }
+    //will pickup the persisted standings if possible, if not present then initialize
+    if (this.standingsArray.length < 1) {
+      this.initializeStandings();
     }
 
-    console.log(this.roundsArray);
-
-    this.balanceBracket();
-  }
-
-  private isDuplicateRound(roundToInsert: round) {
-    return this.roundsArray.some((round) => {
-      if ((round.player1 === roundToInsert.player1 && round.player2 === roundToInsert.player2) || (round.player1 === roundToInsert.player2 && round.player2 === roundToInsert.player1)) {
-        return true;
-      }
-      return false;
-    }
-    )
   }
 
   public setWinner(roundNumber: number, event: Event) {
@@ -79,9 +52,11 @@ export class RoundRobinRunComponent implements OnInit {
       return;
     }
 
-    const round = this.roundsArray[roundNumber];
+    const round = this.matchesArray[roundNumber];
 
     round.winner = winnerValue;
+    //make sure session storage has the latest changes.
+    sessionStorage.setItem('matchesArray', JSON.stringify(this.matchesArray));
 
     if (winnerValue === 1) {
       this.updatePlayerPoints(round.player1, 1);
@@ -99,11 +74,13 @@ export class RoundRobinRunComponent implements OnInit {
       this.standingsArray[playerIndex].points += change;
     }
     this.sortStandings();
-
   }
 
   private sortStandings() {
     this.standingsArray.sort((a, b) => b.points - a.points);
+
+    //keep session storage updated
+    sessionStorage.setItem('standingsArray', JSON.stringify(this.standingsArray));
   }
 
   private initializeStandings() {
@@ -112,43 +89,5 @@ export class RoundRobinRunComponent implements OnInit {
     }
   }
 
-  private balanceBracket() {
-    let balanced = false;
-
-    // Try multiple passes to reduce repeated player sequences
-    for (let attempt = 0; attempt < 10 && !balanced; attempt++) {
-      balanced = true;
-
-      for (let i = 0; i < this.roundsArray.length - 1; i++) {
-        const current = this.roundsArray[i];
-        const next = this.roundsArray[i + 1];
-
-        // If the same player appears consecutively, swap with a non-adjacent match
-        if (
-          current.player1 === next.player1 || current.player2 === next.player2 ||
-          current.player1 === next.player2 || current.player2 === next.player1
-        ) {
-          // Find a non-adjacent match to swap
-          let swapIndex = i + 2;
-          while (swapIndex < this.roundsArray.length) {
-            const swapCandidate = this.roundsArray[swapIndex];
-            if (
-              swapCandidate.player1 !== current.player1 &&
-              swapCandidate.player2 !== current.player2 &&
-              swapCandidate.player1 !== next.player1 &&
-              swapCandidate.player2 !== next.player2
-            ) {
-              // Swap and mark it as balanced attempt
-              [this.roundsArray[i + 1], this.roundsArray[swapIndex]] =
-                [this.roundsArray[swapIndex], this.roundsArray[i + 1]];
-              balanced = false;
-              break;
-            }
-            swapIndex++;
-          }
-        }
-      }
-    }
-  }
 
 }
