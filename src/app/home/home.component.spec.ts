@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RoundRobinHomeComponent } from './round-robin-home.component';
+import { RoundRobinHomeComponent } from './home.component';
 
 describe('RoundRobinHomeComponent', () => {
   let component: RoundRobinHomeComponent;

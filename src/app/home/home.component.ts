@@ -4,13 +4,13 @@ import { Router } from '@angular/router';
 import { Match, Round } from '../types';
 
 @Component({
-  selector: 'app-round-robin-home',
+  selector: 'app-home',
   imports: [FormsModule],
-  templateUrl: './round-robin-home.component.html',
-  styleUrl: './round-robin-home.component.css'
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css'
 })
 
-export class RoundRobinHomeComponent {
+export class HomeComponent {
 
   public playersArray: string[] = [];
   public newPlayerName: string = '';
