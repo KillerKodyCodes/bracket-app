@@ -3,16 +3,21 @@
     <table class="table-auto">
       <tr>
         <th colspan="3">
-          Matches
+          Bracket
         </th>
       </tr>
       <tr>
+        <th>Round</th>
         <th>Player 1</th>
         <th>Player 2</th>
         <th>Winner</th>
       </tr>
-      @for (match of matchesArray; track $index) {
+
+      @for(round of roundsArray; track $index; let roundIndex = $index){
+
+      @for (match of round.roundMatches; track $index; let matchIndex = $index) {
       <tr>
+        <td>{{round.roundNumber}}</td>
         <td>
           {{match.player1}}
         </td>
@@ -20,7 +25,7 @@
           {{match.player2}}
         </td>
         <td>
-          <select [(ngModel)]="match.winner" (change)="setWinner($index,$event )">
+          <select [(ngModel)]="match.winner" (change)="setWinner( roundIndex, matchIndex,$event )">
             <option value=0>Select...</option>
             <option value=1>{{match.player1}}</option>
             <option value=2>{{match.player2}}</option>
@@ -28,6 +33,9 @@
         </td>
       </tr>
       }
+
+      }
+
     </table>
   </div>
 

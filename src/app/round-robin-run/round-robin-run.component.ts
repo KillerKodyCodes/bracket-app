@@ -1,17 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Match, Round, Standings } from '../types';
 
-export interface match {
-  player1: string;
-  player2: string;
-  winner: number;
-}
 
-export interface standingsObject {
-  player: string;
-  points: number;
-}
 
 @Component({
   selector: 'app-round-robin-run',
@@ -22,17 +14,17 @@ export interface standingsObject {
 export class RoundRobinRunComponent implements OnInit {
 
   private playersArray: string[] = [];
-  public matchesArray: match[] = [];
-  public standingsArray: standingsObject[] = [];
+  public roundsArray: Round[] = [];
+  public standingsArray: Standings[] = [];
   constructor(private router: Router) { };
 
 
   ngOnInit(): void {
-    this.matchesArray = JSON.parse(sessionStorage.getItem('matchesArray') || '[]');
     this.playersArray = JSON.parse(sessionStorage.getItem('playersArray') || '[]');
     this.standingsArray = JSON.parse(sessionStorage.getItem('standingsArray') || '[]');
+    this.roundsArray = JSON.parse(sessionStorage.getItem('roundsArray') || '[]');
 
-    if (this.matchesArray.length < 1 || this.playersArray.length < 2) {
+    if (this.roundsArray.length < 1 || this.playersArray.length < 2) {
       this.router.navigate(['/round-robin']);
     }
 
@@ -43,36 +35,42 @@ export class RoundRobinRunComponent implements OnInit {
 
   }
 
-  public setWinner(roundNumber: number, event: Event) {
+  public setWinner(roundIndex: number, matchIndex: number, event: Event) {
     const winnerValue = Number((event.target as HTMLSelectElement).value);
-    const validWinnerValues = [0, 1, 2];
+    const validWinnerValues = [0, 1, 2]; // 0 = no winner, 1 = player1, 2 = player2
 
     if (!validWinnerValues.includes(winnerValue)) {
       console.error('Value of', winnerValue, 'not a valid winner value.');
       return;
     }
 
-    const round = this.matchesArray[roundNumber];
+    const round = this.roundsArray[roundIndex];
+    const match = round.roundMatches[matchIndex];
+    match.winner = winnerValue;
 
-    round.winner = winnerValue;
-    //make sure session storage has the latest changes.
-    sessionStorage.setItem('matchesArray', JSON.stringify(this.matchesArray));
+    // Persist updated rounds
+    sessionStorage.setItem('roundsArray', JSON.stringify(this.roundsArray));
 
+    // Update standings
     if (winnerValue === 1) {
-      this.updatePlayerPoints(round.player1, 1);
+      this.updatePlayerPoints(match.player1, 1);
     } else if (winnerValue === 2) {
-      this.updatePlayerPoints(round.player2, 1);
+      this.updatePlayerPoints(match.player2, 1);
     }
-
   }
 
+  private updatePlayerPoints(player: string | null, change: number) {
+    if (player === null) {
+      // Bye round → no points
+      return;
+    }
 
-  private updatePlayerPoints(player: string, change: number) {
     const playerIndex = this.standingsArray.findIndex(p => p.player === player);
 
     if (playerIndex !== -1) {
       this.standingsArray[playerIndex].points += change;
     }
+
     this.sortStandings();
   }
 
