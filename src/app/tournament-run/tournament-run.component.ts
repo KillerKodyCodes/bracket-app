@@ -47,7 +47,15 @@ export class TournamentRunComponent {
       throw new Error('Bracket is undefined');
     }
     const match = workingBracket[roundIndex].roundMatches[matchIndex];
-    match.winner = winner;
+
+    // If it’s a bye (null player), auto-assign the winner
+    if (match.player1 === null && match.player2 !== null) {
+      match.winner = 2;
+    } else if (match.player2 === null && match.player1 !== null) {
+      match.winner = 1;
+    } else {
+      match.winner = winner; // normal case
+    }
 
     // then need to update the affected bracket(s)
     this.progressBracket(bracket, roundIndex, match);
@@ -76,8 +84,12 @@ export class TournamentRunComponent {
       this.tournamentBracket.losers[roundIndex + 1].roundMatches = tempRound;
     } else {
       // progress loser and winner
+
     }
 
+
+    // keep bracket persisted over time
+    sessionStorage.setItem('tournamentBracket', JSON.stringify(this.tournamentBracket));
 
   }
 
@@ -108,19 +120,23 @@ export class TournamentRunComponent {
   }
 
   private getWinner(match: Match): string {
-    let winner: string | null;
-    if (match.winner === 1) {
-      winner = match.player1
-    } else if (match.winner === 2) {
-      winner = match.player2
-    } else {
-      throw new Error('Unable to determine winner');
+    // If one side is null, auto-win for the other side
+    if (match.player1 !== null && match.player2 === null) {
+      return match.player1;
+    }
+    if (match.player2 !== null && match.player1 === null) {
+      return match.player2;
     }
 
-    if (winner === null) {
-      throw new Error('Unable to determine winner');
+    // Otherwise, require a manual winner
+    if (match.winner === 1 && match.player1 !== null) {
+      return match.player1;
     }
-    return winner;
+    if (match.winner === 2 && match.player2 !== null) {
+      return match.player2;
+    }
+
+    throw new Error(`Unable to determine winner for match: ${match.player1} vs ${match.player2}`);
   }
 
 }

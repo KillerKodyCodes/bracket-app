@@ -55,30 +55,35 @@ export class HomeComponent {
   private generateTournamentBracket(): TournamentBracket {
     const players: (string | null)[] = [...this.playersArray];
 
-    // If odd number of players, add a bye
-    if (players.length % 2 !== 0) {
+    // Make total players a power of two for a balanced bracket
+    const nextPowerOfTwo = Math.pow(2, Math.ceil(Math.log2(players.length)));
+    const numByes = nextPowerOfTwo - players.length;
+
+    // Add nulls for byes
+    for (let i = 0; i < numByes; i++) {
       players.push(null);
     }
 
     const firstRoundMatches: Match[] = [];
+
+    // Create matches in pairs
     for (let i = 0; i < players.length; i += 2) {
       const player1 = players[i];
       const player2 = players[i + 1];
 
-      if (player1 !== null && player2 !== null) {
-        firstRoundMatches.push({
-          player1,
-          player2,
-          winner: 0
-        });
-      } else if (player1 !== null || player2 !== null) {
-        // Auto-advance the non-null player (bye)
-        firstRoundMatches.push({
-          player1,
-          player2,
-          winner: player1 ? 1 : 2
-        });
+      let winner: 0 | 1 | 2 = 0;
+
+      if (player1 === null && player2 !== null) {
+        winner = 2; // player2 auto-advances
+      } else if (player2 === null && player1 !== null) {
+        winner = 1; // player1 auto-advances
       }
+
+      firstRoundMatches.push({
+        player1,
+        player2,
+        winner
+      });
     }
 
     return {
@@ -88,7 +93,7 @@ export class HomeComponent {
           roundMatches: firstRoundMatches
         }
       ],
-      losers: [] // losers’ bracket starts empty
+      losers: [] // losers bracket starts empty
     };
   }
 
