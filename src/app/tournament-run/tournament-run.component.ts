@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Match, Round, TournamentBracket } from '../types';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-tournament-run',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './tournament-run.component.html',
   styleUrl: './tournament-run.component.css'
 })
@@ -32,7 +33,8 @@ export class TournamentRunComponent {
   };
 
 
-  public setWinner(bracket: 'W' | 'L', roundIndex: number, matchIndex: number, winner: 0 | 1 | 2) {
+  public setWinner(bracket: 'W' | 'L', roundIndex: number, matchIndex: number, event: Event) {
+    const winner = Number((event.target as HTMLSelectElement).value);
     let workingBracket: Round[] | undefined;
     if (bracket === 'W') {
       workingBracket = this.tournamentBracket?.winners
@@ -62,80 +64,57 @@ export class TournamentRunComponent {
   }
 
   private progressBracket(bracket: 'W' | 'L', roundIndex: number, match: Match) {
-    const matchWinner: string = this.getWinner(match);
-    if (bracket === 'L') {
-      // progress winner along loser bracket
-      if (this.tournamentBracket.losers.length < roundIndex + 2) {
-        // this is the first winner sent to this round, need to create the match for this round and just return 
-        this.tournamentBracket.losers.push({
-          roundNumber: roundIndex + 2,
-          roundMatches: [{ player1: matchWinner, player2: null, winner: 0 }]
-        });
-        // no additional steps needed
-        return;
-      }
+    const matchWinner = this.getWinner(match);
+    const matchLoser = match.player1 === matchWinner ? match.player2 : match.player1;
 
-      // create a mutable copy of the round we are working with
-      let tempRound = this.tournamentBracket.losers[roundIndex + 1].roundMatches
-
-      // get the modified round from insertPlayer() and then write that entire tempRound back to the bracket
-      tempRound = this.insertPlayer(tempRound, matchWinner);
-      this.tournamentBracket.losers[roundIndex + 1].roundMatches = tempRound;
-    } else {
-      // progress winner along winners bracket and move loser to losers bracket
-
-      // --- winners bracket logic ---
-      const matchLoser = match.player1 === matchWinner ? match.player2 : match.player1;
-
-      //Advance winner to next winners round
+    if (bracket === 'W') {
       const nextWinnersRoundIndex = roundIndex + 1;
-
-      if (matchLoser !== null) { // only move loser if there is an actual player
-        // Move loser to next available losers bracket match
-        if (this.tournamentBracket.losers.length < nextWinnersRoundIndex + 1) {
-          // first entry in this round of losers bracket
-          this.tournamentBracket.losers.push({
-            roundNumber: nextWinnersRoundIndex + 1,
-            roundMatches: [{ player1: matchLoser, player2: null, winner: 0 }]
-          });
-        } else {
-          // insert loser into existing round
-          const tempLoserRound = this.tournamentBracket.losers[nextWinnersRoundIndex].roundMatches;
-          this.tournamentBracket.losers[nextWinnersRoundIndex].roundMatches = this.insertPlayer(tempLoserRound, matchLoser);
-        }
-      }
+      const losersRoundIndex = roundIndex;
 
       // Advance winner in winners bracket
-      if (this.tournamentBracket.winners.length < nextWinnersRoundIndex + 1) {
-        // create next round if it doesn’t exist yet
-        this.tournamentBracket.winners.push({
-          roundNumber: nextWinnersRoundIndex + 1,
-          roundMatches: [{ player1: matchWinner, player2: null, winner: 0 }]
-        });
-      } else {
-        const tempWinnersRound = this.tournamentBracket.winners[nextWinnersRoundIndex].roundMatches;
-        this.tournamentBracket.winners[nextWinnersRoundIndex].roundMatches = this.insertPlayer(tempWinnersRound, matchWinner);
+      this.advancePlayerInBracket(this.tournamentBracket.winners, nextWinnersRoundIndex, matchWinner);
+
+      // Advance loser in losers bracket
+      if (matchLoser !== null) {
+        this.advancePlayerInBracket(this.tournamentBracket.losers, losersRoundIndex, matchLoser);
       }
+
+    } else if (bracket === 'L') {
+      const nextLosersRoundIndex = roundIndex + 1;
+      this.advancePlayerInBracket(this.tournamentBracket.losers, nextLosersRoundIndex, matchWinner);
     }
 
-
-    // keep bracket persisted over time
+    // Persist bracket
     sessionStorage.setItem('tournamentBracket', JSON.stringify(this.tournamentBracket));
+  }
+
+  /** Helper to advance a player to the next round in a given bracket */
+  private advancePlayerInBracket(bracketArray: Round[], roundIndex: number, player: string) {
+    // Create the round if it doesn't exist
+    if (!bracketArray[roundIndex]) {
+      bracketArray[roundIndex] = {
+        roundNumber: roundIndex + 1,
+        roundMatches: []
+      };
+    }
+
+    // Insert player into next available slot
+    bracketArray[roundIndex].roundMatches = this.insertPlayer(bracketArray[roundIndex].roundMatches, player);
   }
 
 
 
-  private insertPlayer(tempRound: Match[], matchWinner: string): Match[] {
+  private insertPlayer(tempRound: Match[], player: string): Match[] {
     // push winners to the next round in order they appear, only moving to the next Match if both player1 and 2 are filled in
     // unfilled spot is null
     let insertedPlayer: boolean = false; //inspect after the loop to see if there was a spot to insert, if not we need to add a match
     for (const tempMatch of tempRound) {
       if (tempMatch.player1 === null) {
-        tempMatch.player1 = matchWinner;
+        tempMatch.player1 = player;
         insertedPlayer = true;
         return tempRound;
       } else if (tempMatch.player2 === null) {
-        tempMatch.player2 = matchWinner;
+        tempMatch.player2 = player;
         insertedPlayer = true;
         return tempRound;
       }
@@ -144,7 +123,7 @@ export class TournamentRunComponent {
 
     if (!insertedPlayer) {
       // add a new match object
-      tempRound.push({ player1: matchWinner, player2: null, winner: 0 })
+      tempRound.push({ player1: player, player2: null, winner: 0 })
     }
 
     return tempRound;
@@ -167,7 +146,6 @@ export class TournamentRunComponent {
     if (match.winner === 2 && match.player2 !== null) {
       return match.player2;
     }
-
     throw new Error(`Unable to determine winner for match: ${match.player1} vs ${match.player2}`);
   }
 
