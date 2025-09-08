@@ -13,3 +13,9 @@ export interface Standings {
     player: string;
     points: number;
 }
+
+
+export interface TournamentBracket {
+    winners: Round[];
+    losers: Round[];
+}

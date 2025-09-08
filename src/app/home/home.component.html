@@ -11,10 +11,15 @@
 
   <div class="flex flex-row justify-between gap-12">
     <button type="button" (click)="clearPlayers()" [disabled]="isClearPlayersButtonDisabled()">Clear Players</button>
-    <button type="button" (click)="startRoundRobin()" [disabled]="isStartRoundRobinButtonDisabled()">Start Round
+    <button type="button" (click)="startRoundRobin()" [disabled]="isStartButtonDisabled()">Start Round
       Robin</button>
+    <button type="button" (click)="startTournament()" [disabled]="isStartButtonDisabled()">Start Tournament
+    </button>
+
   </div>
 
+  <button type="button" (click)="createTestPlayers(true)">Create odd numbered array</button>
+  <button type="button" (click)="createTestPlayers(false)">Create even numbered array</button>
 
   @for(player of playersArray; track $index){
   <p>{{$index + 1}} - {{player}} <button id="removePlayerButton" (click)="removePlayer($index)">Remove</button></p>

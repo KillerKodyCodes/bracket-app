@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Match, Round } from '../types';
+import { Match, Round, TournamentBracket } from '../types';
 
 @Component({
   selector: 'app-home',
@@ -43,6 +43,56 @@ export class HomeComponent {
     return this.playersArray.length < 1;
   }
 
+  public startTournament() {
+    const bracket = this.generateTournamentBracket();
+
+    sessionStorage.setItem('tournamentBracket', JSON.stringify(bracket));
+    sessionStorage.setItem('playersArray', JSON.stringify(this.playersArray));
+
+    this.router.navigate(['/tournament/run']);
+  }
+
+  private generateTournamentBracket(): TournamentBracket {
+    const players: (string | null)[] = [...this.playersArray];
+
+    // If odd number of players, add a bye
+    if (players.length % 2 !== 0) {
+      players.push(null);
+    }
+
+    const firstRoundMatches: Match[] = [];
+    for (let i = 0; i < players.length; i += 2) {
+      const player1 = players[i];
+      const player2 = players[i + 1];
+
+      if (player1 !== null && player2 !== null) {
+        firstRoundMatches.push({
+          player1,
+          player2,
+          winner: 0
+        });
+      } else if (player1 !== null || player2 !== null) {
+        // Auto-advance the non-null player (bye)
+        firstRoundMatches.push({
+          player1,
+          player2,
+          winner: player1 ? 1 : 2
+        });
+      }
+    }
+
+    return {
+      winners: [
+        {
+          roundNumber: 1,
+          roundMatches: firstRoundMatches
+        }
+      ],
+      losers: [] // losers’ bracket starts empty
+    };
+  }
+
+
   public startRoundRobin() {
     this.generateBracket();
 
@@ -51,15 +101,10 @@ export class HomeComponent {
 
     sessionStorage.removeItem('standingsArray');
 
-    this.router.navigate(['/round-robin/run'], {
-      state: {
-        roundsArray: this.roundsArray,
-        playersArray: this.playersArray
-      }
-    });
+    this.router.navigate(['/round-robin/run']);
   }
 
-  public isStartRoundRobinButtonDisabled(): boolean {
+  public isStartButtonDisabled(): boolean {
     return this.playersArray.length < 2;
   }
 
@@ -111,5 +156,18 @@ export class HomeComponent {
         ...players.slice(1, -1)
       ];
     }
+  }
+
+
+  public createTestPlayers(isOdd: boolean) {
+    const testArray = [
+      'Kody', 'Stone', 'Jacob', 'Fred', 'Charles', 'lorem', 'ipsum', 'times', 'new', 'roman', 'test', 'test1', 'montech', 'razr', 'stapl', 'google'
+    ]
+
+    if (isOdd) {
+      testArray.pop();
+    }
+
+    this.playersArray = testArray;
   }
 }
